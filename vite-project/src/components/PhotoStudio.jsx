@@ -21,11 +21,13 @@ const PhotoStudio = () => {
   const [countdown, setCountdown] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const webcamRef = useRef(null);
-  const [stripCount, setStripCount] = useState(3); // New state for number of pictures per strip
+  const [stripCount, setStripCount] = useState(3); // State for number of pictures per strip (default 3)
   const [currentPictureIndex, setCurrentPictureIndex] = useState(0); // Track current picture in sequence
 
+  // Helper function for delays in async operations
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
+  // Function to get CSS class based on selected filter
   const getFilterClass = (filter) => {
     switch (filter.toLowerCase()) {
       case "90s":
@@ -37,16 +39,17 @@ const PhotoStudio = () => {
     }
   };
 
+  // Function to capture a single image with the selected filter
   const takePhoto = useCallback(async () => {
     const video = webcamRef.current?.video;
-    if (!video || video.readyState < 2) return;
+    if (!video || video.readyState < 2) return; // Ensure webcam is ready
 
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
 
-    let cssFilter = "none";
+    let cssFilter = "none"; // Default filter
     switch (selectedFilter.toLowerCase()) {
       case "noir":
         cssFilter = "grayscale(1) contrast(0.8) brightness(1.1)";
@@ -72,70 +75,81 @@ const PhotoStudio = () => {
         cssFilter = "brightness(1.1)";
         break;
       default:
-        cssFilter = "none"; // Ensure a default filter
+        cssFilter = "none";
         break;
     }
 
-    ctx.filter = cssFilter;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.filter = cssFilter; // Apply CSS filter to canvas context
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height); // Draw video frame to canvas
 
-    const filteredImg = canvas.toDataURL("image/jpeg");
+    const filteredImg = canvas.toDataURL("image/jpeg"); // Get image data URL
     setPhotos((prev) => [
       ...prev,
-      { src: filteredImg, filter: selectedFilter },
+      { src: filteredImg, filter: selectedFilter }, // Store image and its applied filter
     ]);
-  }, [selectedFilter]); // Added selectedFilter to useCallback dependencies
+  }, [selectedFilter]); // Re-create if selectedFilter changes
 
+  // Handles each step of the countdown (3.., 2.., 1.., Smile!)
   const countdownStep = async (value) => {
     setCountdown(value);
-    await new Promise((r) => requestAnimationFrame(r));
-    await delay(1000);
+    await new Promise((r) => requestAnimationFrame(r)); // Ensure UI updates before delay
+    await delay(1000); // Pause for 1 second
   };
 
+  // Starts the entire photo-taking sequence
   const startPhotoSequence = async () => {
-    setIsCapturing(true);
-    setPhotos([]); // Clear previous photos
-    setCurrentPictureIndex(0); // Reset current picture index
-    setShowResult(false);
+    setIsCapturing(true); // Set capturing state to true
+    setPhotos([]); // Clear any previously captured photos
+    setCurrentPictureIndex(0); // Reset picture index for the new sequence
+    setShowResult(false); // Hide results view
 
-    for (let i = 0; i < stripCount; i++) { // Loop based on stripCount
-      setCurrentPictureIndex(i); // Update index for display
+    // Loop to take photos based on the selected stripCount
+    for (let i = 0; i < stripCount; i++) {
+      setCurrentPictureIndex(i); // Update current picture index for UI display
       await countdownStep("3..");
       await countdownStep("2..");
       await countdownStep("1..");
       await countdownStep("Smile!");
-      await takePhoto();
-      setCountdown(null);
-      await delay(500); // Small delay between photos
+      await takePhoto(); // Capture the photo
+      setCountdown(null); // Clear countdown display
+      await delay(500); // Short delay before next photo in sequence
     }
 
-    setIsCapturing(false);
-    setShowResult(true);
+    setIsCapturing(false); // Set capturing state to false
+    setShowResult(true); // Show the results view
   };
 
+  // Handles reshooting the photo strip
   const handleReshoot = () => {
-    setPhotos([]);
-    setShowResult(false);
-    setCurrentPictureIndex(0); // Reset index on reshoot
+    setPhotos([]); // Clear photos
+    setShowResult(false); // Hide results
+    setCurrentPictureIndex(0); // Reset index
   };
 
+  // Handles downloading the generated photo strip
   const handleDownload = async () => {
     const frame = document.getElementById("photostrip-canvas-source");
-    if (!frame) return;
+    if (!frame) return; // Ensure the element exists
 
+    // Use html2canvas to capture the entire photo strip div
     const canvas = await html2canvas(frame, { useCORS: true });
-    const dataURL = canvas.toDataURL("image/jpeg");
+    const dataURL = canvas.toDataURL("image/jpeg"); // Get image data URL
 
+    // Create a temporary link element to trigger download
     const link = document.createElement("a");
     link.href = dataURL;
-    link.download = "dvBooth-strip.jpg";
-    link.click();
+    link.download = "dvBooth-strip.jpg"; // Set download filename
+    document.body.appendChild(link); // Append to body (required for click)
+    link.click(); // Simulate click to download
+    document.body.removeChild(link); // Clean up the link element
   };
 
+  // Handles changes from the "Pictures per strip" dropdown
   const handleStripCountChange = (event) => {
-    setStripCount(Number(event.target.value));
+    setStripCount(Number(event.target.value)); // Update stripCount state
   };
 
+  // Framer Motion animation variants for sliding in the studio
   const slideIn = {
     hidden: { x: "100%", opacity: 0 },
     visible: {
@@ -152,10 +166,10 @@ const PhotoStudio = () => {
       initial="hidden"
       animate="visible"
     >
-      {!showResult && (
+      {!showResult && ( // Show studio view if results are not being shown
         <div className="studio-container">
           <div className="studio-webcam-container">
-            {countdown && <div className="countdown-overlay">{countdown}</div>}
+            {countdown && <div className="countdown-overlay">{countdown}</div>} {/* Countdown display */}
 
             <div className={`studio-webcam ${getFilterClass(selectedFilter)}`}>
               <Webcam
@@ -167,7 +181,7 @@ const PhotoStudio = () => {
             </div>
           </div>
 
-          <div className="controls-section"> {/* Added a wrapper for controls */}
+          <div className="controls-section"> {/* Wrapper for all controls */}
             <div className="filter-bar">
               {filters.map((filter) => (
                 <button
@@ -176,7 +190,7 @@ const PhotoStudio = () => {
                   className={`filter-btn ${
                     selectedFilter === filter ? "active" : ""
                   }`}
-                  disabled={isCapturing}
+                  disabled={isCapturing} // Disable filter selection during capture
                 >
                   {filter}
                 </button>
@@ -189,7 +203,7 @@ const PhotoStudio = () => {
                 id="stripCount"
                 value={stripCount}
                 onChange={handleStripCountChange}
-                disabled={isCapturing}
+                disabled={isCapturing} // Disable selection during capture
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -200,20 +214,21 @@ const PhotoStudio = () => {
             <button
               className="capture-btn"
               onClick={startPhotoSequence}
-              disabled={isCapturing}
+              disabled={isCapturing} // Disable button during capture
             >
-              📸 {isCapturing ? `(${currentPictureIndex + 1}/${stripCount})` : ''}
+              📸 {isCapturing ? `(${currentPictureIndex + 1}/${stripCount})` : ''} {/* Show capture progress */}
             </button>
           </div>
         </div>
       )}
 
-      {showResult && (
+      {showResult && ( // Show results view if results are available
         <div className="studio-result slide-in-top">
           <div
             className={`photostrip-frame ${showResult ? "strip-slide-in" : ""}`}
             id="photostrip-canvas-source"
-            style={{ gridTemplateColumns: `repeat(${stripCount}, 1fr)` }} {/* Dynamic grid for results */}
+            // Dynamically set grid columns based on stripCount for the generated strip
+            style={{ gridTemplateColumns: `repeat(${stripCount}, 1fr)` }}
           >
             {photos.map((photo, idx) => (
               <div className="strip-photo-wrapper" key={idx}>
@@ -224,11 +239,10 @@ const PhotoStudio = () => {
                 />
               </div>
             ))}
-             {/* Add placeholders for missing photos if any */}
+             {/* Add placeholders for missing photos if the strip isn't full (e.g., if cancelled mid-capture) */}
              {photos.length < stripCount && Array.from({ length: stripCount - photos.length }).map((_, idx) => (
                 <div key={`placeholder-${idx}`} className="strip-photo-wrapper placeholder">
-                    {/* You can add a placeholder image or text here */}
-                    <div className="placeholder-text"></div>
+                    <div className="placeholder-text"></div> {/* Placeholder content */}
                 </div>
             ))}
             <p className="photostrip-caption">

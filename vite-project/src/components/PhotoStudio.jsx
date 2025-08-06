@@ -138,7 +138,7 @@ const PhotoStudio = () => {
     // Create a temporary link element to trigger download
     const link = document.createElement("a");
     link.href = dataURL;
-    link.download = "dvBooth-strip.jpg"; // Set download filename
+    link.download = "Photo-Booth-strip.jpg"; // Set download filename
     document.body.appendChild(link); // Append to body (required for click)
     link.click(); // Simulate click to download
     document.body.removeChild(link); // Clean up the link element
@@ -204,6 +204,7 @@ const PhotoStudio = () => {
                 value={stripCount}
                 onChange={handleStripCountChange}
                 disabled={isCapturing} // Disable selection during capture
+                className="bg-black text-white border border-gray-700 p-2 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -246,7 +247,7 @@ const PhotoStudio = () => {
                 </div>
             ))}
             <p className="photostrip-caption">
-              dvBooth •{" "}
+              Photo-Booth •{" "}
               {new Date().toLocaleDateString("en-IN", {
                 day: "numeric",
                 month: "long",

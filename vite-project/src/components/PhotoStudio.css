@@ -379,3 +379,59 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+.strip-count-selector select {
+  /* Remove default browser styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* Basic styling for the select box */
+  background-color: #000; /* Black background */
+  color: #fff; /* White text */
+  border: 1px solid #333; /* Darker border */
+  padding: 8px 12px; /* Padding inside the dropdown */
+  border-radius: 8px; /* More rounded corners */
+  cursor: pointer;
+  font-size: 1em; /* Ensure font size consistency */
+  outline: none; /* Remove outline on focus */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+
+  /* Custom arrow for the dropdown */
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2C197.398L146.2%2C56.6L5.4%2C197.398h281.6z%22%2F%3E%3C%2Fsvg%3E');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding-right: 30px; /* Make space for the custom arrow */
+}
+
+/* Style for the options within the dropdown list */
+/* Note: Styling options consistently across browsers is very difficult.
+   These rules provide a starting point but may not be perfect everywhere. */
+.strip-count-selector select option {
+  background-color: #1a1a1a; /* Darker background for options */
+  color: #fff; /* White text for options */
+  padding: 8px 12px; /* Padding for individual options */
+}
+
+/* Style for the label next to the dropdown */
+.strip-count-selector label {
+  color: #fff; /* White text for the label */
+  margin-right: 10px; /* Space between label and dropdown */
+  font-size: 1.1em; /* Slightly larger text */
+  font-weight: bold; /* Make label stand out */
+}
+
+/* Style when the dropdown is disabled */
+.strip-count-selector select:disabled {
+  opacity: 0.5; /* Make it slightly transparent */
+  cursor: not-allowed;
+  box-shadow: none; /* Remove shadow when disabled */
+}
+
+/* Focus style for the select box */
+.strip-count-selector select:focus {
+  border-color: #61dafb; /* A light blue border on focus */
+  box-shadow: 0 0 0 3px rgba(97, 218, 251, 0.5); /* A subtle glow on focus */
+}
+

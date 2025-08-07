@@ -1,6 +1,6 @@
 # 📸 Photo Booth
 
-A fun and interactive Photo Booth app built with React, Tailwind CSS, and Vite. Capture pictures using your webcam, apply various filters, choose the number of photos for your strip, and then download your personalized photostrips!
+A fun and interactive Photo Booth built with React, Tailwind CSS, and Vite. Capture pictures using your webcam, apply various filters, choose the number of photos for your strip, and then download your personalized photostrips!
 
 ## 🔗 Live Demo
 
